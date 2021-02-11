@@ -29,6 +29,7 @@ class ChatPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var chatBox = context.read<ChatBox>();
     return Scaffold(
       appBar: AppBar(
         title: ClipRRect(
@@ -61,16 +62,19 @@ class ChatPage extends StatelessWidget {
             Expanded(
               child: Consumer<ChatBox>(
                 builder: (context, chatbox, child) {
-                  return ListView(
+                  print('${chatbox.chats.length}');
+                  return ListView.builder(
                     padding: EdgeInsets.only(bottom: 16),
                     reverse: true,
-                    children: [
+                    itemCount: chatbox.chats.length,
+                    itemBuilder: (_, index) {
                       if (chatbox.chats.isNotEmpty)
-                        MyChatBubble(
-                          message: '${chatbox.chats.last}',
-                        ),
-                      IncomingChatBubble(),
-                    ],
+                        return MyChatBubble(
+                          message:
+                              '${chatbox.chats[chatbox.chats.length - index - 1]}',
+                        );
+                      return IncomingChatBubble();
+                    },
                   );
                 },
               ),
@@ -86,6 +90,7 @@ class ChatPage extends StatelessWidget {
                           left: 16,
                         ),
                         child: TextField(
+                          onChanged: chatBox.setMessage,
                           decoration: InputDecoration(
                             hintText: 'Type message...',
                             border: InputBorder.none,
@@ -106,8 +111,7 @@ class ChatPage extends StatelessWidget {
                         color: Colors.black,
                       ),
                       onPressed: () {
-                        var chatBox = context.read<ChatBox>();
-                        chatBox.addChat(DateTime.now().toIso8601String());
+                        chatBox.addChat();
                       },
                     ),
                   ],
