@@ -1,7 +1,16 @@
+import 'package:chat_app_30/chatbox.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 main() {
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) {
+        return ChatBox();
+      },
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -50,13 +59,20 @@ class ChatPage extends StatelessWidget {
         child: Column(
           children: [
             Expanded(
-              child: ListView(
-                padding: EdgeInsets.only(bottom: 16),
-                reverse: true,
-                children: [
-                  MyChatBubble(),
-                  IncomingChatBubble(),
-                ],
+              child: Consumer<ChatBox>(
+                builder: (context, chatbox, child) {
+                  return ListView(
+                    padding: EdgeInsets.only(bottom: 16),
+                    reverse: true,
+                    children: [
+                      if (chatbox.chats.isNotEmpty)
+                        MyChatBubble(
+                          message: '${chatbox.chats.last}',
+                        ),
+                      IncomingChatBubble(),
+                    ],
+                  );
+                },
               ),
             ),
             Container(
@@ -89,7 +105,10 @@ class ChatPage extends StatelessWidget {
                         Icons.send,
                         color: Colors.black,
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        var chatBox = context.read<ChatBox>();
+                        chatBox.addChat(DateTime.now().toIso8601String());
+                      },
                     ),
                   ],
                 ),
@@ -103,8 +122,10 @@ class ChatPage extends StatelessWidget {
 }
 
 class MyChatBubble extends StatelessWidget {
+  final String message;
   const MyChatBubble({
     Key key,
+    this.message,
   }) : super(key: key);
 
   @override
@@ -119,7 +140,7 @@ class MyChatBubble extends StatelessWidget {
               margin: EdgeInsets.all(8),
               padding: EdgeInsets.all(12),
               child: Text(
-                'Ooh. Amazing work.',
+                '$message',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
