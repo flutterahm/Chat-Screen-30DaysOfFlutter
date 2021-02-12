@@ -30,6 +30,7 @@ class ChatPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var chatBox = context.read<ChatBox>();
+    var textEditingController = TextEditingController();
     return Scaffold(
       appBar: AppBar(
         title: ClipRRect(
@@ -94,6 +95,7 @@ class ChatPage extends StatelessWidget {
                           left: 16,
                         ),
                         child: TextField(
+                          controller: textEditingController,
                           onChanged: chatBox.setMessage,
                           decoration: InputDecoration(
                             hintText: 'Type message...',
@@ -109,6 +111,7 @@ class ChatPage extends StatelessWidget {
                       ),
                       onPressed: () {
                         chatBox.addChat(isMyMessage: false);
+                        textEditingController.clear();
                       },
                     ),
                     IconButton(
@@ -118,6 +121,7 @@ class ChatPage extends StatelessWidget {
                       ),
                       onPressed: () {
                         chatBox.addChat(isMyMessage: true);
+                        textEditingController.clear();
                       },
                     ),
                   ],
