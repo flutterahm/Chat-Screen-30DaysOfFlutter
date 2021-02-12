@@ -62,17 +62,21 @@ class ChatPage extends StatelessWidget {
             Expanded(
               child: Consumer<ChatBox>(
                 builder: (context, chatbox, child) {
-                  print('${chatbox.chats.length}');
                   return ListView.builder(
                     padding: EdgeInsets.only(bottom: 16),
                     reverse: true,
                     itemCount: chatbox.chats.length,
                     itemBuilder: (_, index) {
+                      var item =
+                          chatbox.chats[chatbox.chats.length - index - 1];
                       if (chatbox.chats.isNotEmpty)
-                        return MyChatBubble(
-                          message:
-                              '${chatbox.chats[chatbox.chats.length - index - 1]}',
-                        );
+                        return item.isMyMessage
+                            ? MyChatBubble(
+                                message: '${item.message}',
+                              )
+                            : IncomingChatBubble(
+                                message: '${item.message}',
+                              );
                       return IncomingChatBubble();
                     },
                   );
@@ -103,7 +107,9 @@ class ChatPage extends StatelessWidget {
                         Icons.add_circle,
                         color: Colors.black,
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        chatBox.addChat(isMyMessage: false);
+                      },
                     ),
                     IconButton(
                       icon: Icon(
@@ -111,7 +117,7 @@ class ChatPage extends StatelessWidget {
                         color: Colors.black,
                       ),
                       onPressed: () {
-                        chatBox.addChat();
+                        chatBox.addChat(isMyMessage: true);
                       },
                     ),
                   ],
@@ -177,8 +183,10 @@ class MyChatBubble extends StatelessWidget {
 }
 
 class IncomingChatBubble extends StatelessWidget {
+  final String message;
   const IncomingChatBubble({
     Key key,
+    this.message,
   }) : super(key: key);
 
   @override
@@ -193,7 +201,7 @@ class IncomingChatBubble extends StatelessWidget {
               margin: EdgeInsets.all(8),
               padding: EdgeInsets.all(12),
               child: Text(
-                'Thank you',
+                '$message',
                 style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
