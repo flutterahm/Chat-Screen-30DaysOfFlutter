@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -18,19 +19,21 @@ class ChatBox with ChangeNotifier {
 
   Future<void> persistChats(List<ChatMessage> chatMessages) async {
     //TODO: Persist
-    print('Storing chats to shared pref');
+    print('Storing chats to Hive box');
+    var box = await Hive.openBox('myBox');
 
     String chatMessaagesString = chatMessageToJson(chatMessages);
+    box.put('myChats', chatMessaagesString);
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('myChats', chatMessaagesString);
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+    // await prefs.setString('myChats', chatMessaagesString);
   }
 
   Future<void> retriveChats() async {
     // TODO: retrive the mesages
-    print('Retriving chats from shared pref');
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String chatMessagesString = prefs.getString('myChats');
+    print('Retriving chats from Hive');
+    var box = await Hive.openBox('myBox');
+    String chatMessagesString = box.get('myChats');
     List<ChatMessage> allChats = chatMessageFromJson(chatMessagesString);
     chats = allChats;
     notifyListeners();
