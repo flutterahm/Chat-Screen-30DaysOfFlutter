@@ -6,7 +6,7 @@ main() {
   runApp(
     ChangeNotifierProvider(
       create: (context) {
-        return ChatBox();
+        return ChatBox()..retriveChats();
       },
       child: MyApp(),
     ),

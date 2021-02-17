@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class ChatBox with ChangeNotifier {
   List<ChatMessage> chats = [];
@@ -11,12 +13,55 @@ class ChatBox with ChangeNotifier {
     var chatMessage = ChatMessage(message: _message, isMyMessage: isMyMessage);
     chats.add(chatMessage);
     notifyListeners();
+    persistChats(chats);
+  }
+
+  Future<void> persistChats(List<ChatMessage> chatMessages) async {
+    //TODO: Persist
+    print('Storing chats to shared pref');
+
+    String chatMessaagesString = chatMessageToJson(chatMessages);
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('myChats', chatMessaagesString);
+  }
+
+  Future<void> retriveChats() async {
+    // TODO: retrive the mesages
+    print('Retriving chats from shared pref');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String chatMessagesString = prefs.getString('myChats');
+    List<ChatMessage> allChats = chatMessageFromJson(chatMessagesString);
+    chats = allChats;
+    notifyListeners();
   }
 }
+// To parse this JSON data, do
+//
+//     final chatMessage = chatMessageFromJson(jsonString);
+
+List<ChatMessage> chatMessageFromJson(String str) => List<ChatMessage>.from(
+    json.decode(str).map((x) => ChatMessage.fromJson(x)));
+
+String chatMessageToJson(List<ChatMessage> data) =>
+    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
 class ChatMessage {
-  final String message;
-  final bool isMyMessage;
+  ChatMessage({
+    this.message,
+    this.isMyMessage,
+  });
 
-  ChatMessage({@required this.message, @required this.isMyMessage});
+  String message;
+  bool isMyMessage;
+
+  factory ChatMessage.fromJson(Map<String, dynamic> json) => ChatMessage(
+        message: json["message"],
+        isMyMessage: json["isMyMessage"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "message": message,
+        "isMyMessage": isMyMessage,
+      };
 }
